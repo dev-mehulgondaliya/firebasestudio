@@ -26,7 +26,7 @@ export default function Home() {
             </div>
             <div>
               <div className="text-xl font-semibold">Firebase Studio</div>
-              <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Architecture demo</div>
+              <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Developer workspace</div>
             </div>
           </div>
           <Link
@@ -66,24 +66,19 @@ export default function Home() {
           </div>
 
           <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/40">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-400">Current connection</div>
-                <div className="text-xl font-semibold text-white">aurora-app</div>
-              </div>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-300">
-                Active
-              </span>
+            <div className="mb-5">
+              <div className="text-sm text-slate-400">How it works</div>
+              <div className="text-xl font-semibold text-white">Two engines, one workspace</div>
             </div>
 
             <div className="space-y-4">
               <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Execution engine</div>
-                <div className="mt-2 text-lg font-semibold text-white">Browser sandbox + Node.js worker</div>
+                <div className="mt-2 text-lg font-semibold text-white">Browser sandbox + isolated Node.js worker</div>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Security model</div>
-                <div className="mt-2 text-lg font-semibold text-white">User data isolated from studio data</div>
+                <div className="mt-2 text-lg font-semibold text-white">Encrypted Admin credentials, never sent to the browser</div>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Workspace</div>
