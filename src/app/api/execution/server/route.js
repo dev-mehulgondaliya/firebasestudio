@@ -35,7 +35,7 @@ export const POST = route(async ({ request, user }) => {
       timeoutMs,
     });
   } catch (error) {
-    if (error.status === 429) throw new HttpError(429, error.message);
+    if (error.status === 429 || error.status === 503) throw new HttpError(error.status, error.message);
     throw error;
   }
 

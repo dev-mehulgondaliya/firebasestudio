@@ -105,12 +105,14 @@ export function SettingsView() {
         <Card className="space-y-3 p-4">
           <h2 className="font-semibold text-white">Environment &amp; security</h2>
           <Check
-            ok
+            ok={!(environment.storage === "file" && environment.storageEphemeral)}
             label={`Studio data: ${environment.storage === "firestore" ? "separate Firestore project" : "local JSON file"}`}
             detail={
               environment.storage === "firestore"
                 ? environment.storageLocation
-                : `${environment.storageLocation} — fine for local use. Set STUDIO_FIREBASE_SERVICE_ACCOUNT to use a dedicated Firestore project.`
+                : environment.storageEphemeral
+                  ? `${environment.storageLocation} — ephemeral serverless storage; data is lost when the instance recycles. Set STUDIO_FIREBASE_SERVICE_ACCOUNT (dedicated Firestore project) for durable production storage.`
+                  : `${environment.storageLocation} — fine for local use. Set STUDIO_FIREBASE_SERVICE_ACCOUNT to use a dedicated Firestore project.`
             }
           />
           <Check
@@ -129,7 +131,7 @@ export function SettingsView() {
             detail={
               environment.workerPermissionModel
                 ? `Node ${environment.nodeVersion}: workers cannot write files, read outside node_modules, or spawn processes.`
-                : `Node ${environment.nodeVersion} has no --permission flag. Upgrade to Node 22+ for file-system and process isolation.`
+                : `Node ${environment.nodeVersion} has no --permission flag. Upgrade to Node 22.13+ for file-system and process isolation; server execution is disabled until then.`
             }
           />
           <Check ok label="Browser sandbox" detail="Web SDK scripts run in an opaque-origin iframe + Web Worker with no access to Studio cookies or storage." />

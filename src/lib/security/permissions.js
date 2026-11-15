@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/security/session";
 import { HttpError } from "@/lib/api/errors";
+import { permissionModelAvailable } from "@/lib/execution/permission-model";
 
 export async function getCurrentUser() {
   const store = await cookies();
@@ -30,5 +31,12 @@ export function isServerExecutionEnabled() {
 export function assertServerExecutionAllowed() {
   if (!isServerExecutionEnabled()) {
     throw new HttpError(403, "Server-side (Admin SDK) execution is disabled on this Studio instance.");
+  }
+  // Fail closed instead of running user scripts in an unsandboxed process.
+  if (!permissionModelAvailable()) {
+    throw new HttpError(
+      503,
+      `Server-side (Admin SDK) execution requires Node.js 22.13+ (permission model). This instance is running ${process.version}. Upgrade Node or set STUDIO_SERVER_EXECUTION=disabled.`,
+    );
   }
 }

@@ -43,6 +43,7 @@ async function deleteRefs(refs) {
 
 export const firestoreStore = {
   kind: "firestore",
+  ephemeral: false,
   get location() {
     return `firestore://${readStudioServiceAccount()?.project_id ?? "unknown"}`;
   },

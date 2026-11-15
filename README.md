@@ -34,8 +34,10 @@ Required in `.env.local`:
 See `.env.example` for optional settings (separate Firestore project for Studio
 data, disabling server execution, env allow-list for scripts, concurrency).
 
-Node.js 22 or newer is recommended: the server execution worker uses the Node
-permission model (`--permission`).
+Node.js 22.13 or newer is required for server-side (Admin SDK) execution: the
+worker uses the stable permission model (`--permission`). On older Node versions
+Admin scripts are rejected instead of running without file-system and process
+restrictions. The browser execution engine is unaffected.
 
 ## How it works
 
@@ -113,6 +115,12 @@ is escaped as `{ "$map": { ... } }`.
 
 By default Studio stores connections, scripts, history and audit logs in
 `.studio-data/db.json` (git-ignored) — fine for local, single-instance use.
+Set `STUDIO_DATA_DIR` to use another directory (for example a mounted volume).
+
+On serverless hosts such as Vercel the deployment bundle is read-only, so the
+file store automatically falls back to the OS temp directory (`/tmp`) and is
+**ephemeral**: data is lost when the instance recycles. For a real deployment,
+set `STUDIO_FIREBASE_SERVICE_ACCOUNT` and use the Firestore backend below.
 
 To use a dedicated Firestore project instead, set
 `STUDIO_FIREBASE_SERVICE_ACCOUNT` and deploy the rules and indexes in this

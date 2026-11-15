@@ -1,7 +1,7 @@
 import { json, readJson, route } from "@/lib/api/http";
 import { isEncryptionConfigured } from "@/lib/security/encryption";
 import { isServerExecutionEnabled } from "@/lib/security/permissions";
-import { permissionModelAvailable } from "@/lib/execution/server-runner";
+import { permissionModelAvailable } from "@/lib/execution/permission-model";
 import { getSettings, getStore, updateSettings } from "@/lib/studio-db";
 import { settingsSchema } from "@/lib/validators";
 
@@ -10,6 +10,7 @@ function environment() {
   return {
     storage: store.kind,
     storageLocation: store.location,
+    storageEphemeral: Boolean(store.ephemeral),
     encryptionConfigured: isEncryptionConfigured(),
     serverExecutionEnabled: isServerExecutionEnabled(),
     workerPermissionModel: permissionModelAvailable(),

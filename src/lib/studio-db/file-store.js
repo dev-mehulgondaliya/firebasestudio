@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 
@@ -6,8 +7,23 @@ import crypto from "node:crypto";
 // local development. All writes are serialised through one process-wide queue
 // and written atomically (temp file + rename).
 
-const DATA_DIR = path.join(process.cwd(), ".studio-data");
+// Serverless platforms (Vercel, AWS Lambda) mount the deployment bundle at a
+// read-only path (process.cwd()), so only the OS temp directory is writable.
+const SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+export function resolveDataDir() {
+  const configured = process.env.STUDIO_DATA_DIR?.trim();
+  if (configured) return path.resolve(configured);
+  return SERVERLESS ? path.join(os.tmpdir(), "firebase-studio") : path.join(process.cwd(), ".studio-data");
+}
+
+const DATA_DIR = resolveDataDir();
 const DATA_FILE = path.join(DATA_DIR, "db.json");
+
+// Vercel/Lambda only keep /tmp for the lifetime of one warm instance. Point
+// Studio at a Firestore project (STUDIO_FIREBASE_SERVICE_ACCOUNT) for durable
+// storage in production.
+export const fileStoreEphemeral = SERVERLESS;
 const COLLECTIONS = ["users", "connections", "scripts", "executionHistory", "auditLogs"];
 
 // Keep a single lock across Next.js dev hot reloads.
@@ -47,6 +63,7 @@ function matches(doc, where) {
 export const fileStore = {
   kind: "file",
   location: DATA_FILE,
+  ephemeral: fileStoreEphemeral,
 
   async create(collection, data, id = crypto.randomUUID()) {
     return exclusive(async () => {

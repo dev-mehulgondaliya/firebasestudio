@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
+import { permissionModelAvailable } from "@/lib/execution/permission-model";
 
 // Runs an Admin SDK script in a *separate* Node.js process. User code never
 // executes inside the Next.js server process.
@@ -53,10 +54,6 @@ function releaseSlot() {
   else state.active = Math.max(0, state.active - 1);
 }
 
-export function permissionModelAvailable() {
-  return process.allowedNodeEnvironmentFlags.has("--permission");
-}
-
 function nodeArgs() {
   const args = [`--max-old-space-size=${MEMORY_LIMIT_MB}`, "--disable-proto=delete", "--no-deprecation"];
   if (permissionModelAvailable()) {
@@ -98,6 +95,14 @@ function processEnv() {
  * @returns {Promise<{status:"success"|"error"|"timeout", logs:object[], result?:any, error?:object, durationMs:number, logsTruncated:boolean}>}
  */
 export async function runServerScript({ code, serviceAccount, projectId, timeoutMs }) {
+  // Fail closed: never execute user code without the permission model.
+  if (!permissionModelAvailable()) {
+    const error = new Error(
+      `Server-side execution requires Node.js 22.13+ (permission model). This instance is running ${process.version}.`,
+    );
+    error.status = 503;
+    throw error;
+  }
   await acquireSlot();
   try {
     return await spawnJob({ code, serviceAccount, projectId, timeoutMs });
